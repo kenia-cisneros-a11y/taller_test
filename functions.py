@@ -9,6 +9,12 @@ from sklearn.metrics import (
     average_precision_score
 )
 
+RETURN_COST = 18              # Cost per return ($)
+INTERVENTION_COST = 3         # Cost per intervention ($)
+INTERVENTION_EFFECT = 0.35    # Reduction in return probability (35%)
+MONTHLY_ORDERS = 400000 / (0.22 * 18)  # Estimated monthly orders (~101K)
+
+
 def preprocess(df):
     """Simple preprocessing pipeline"""
     df_processed = df.copy()
@@ -41,31 +47,6 @@ def preprocess(df):
     
     return X, y
 
-RETURN_COST = 18              # Cost per return ($)
-INTERVENTION_COST = 3         # Cost per intervention ($)
-INTERVENTION_EFFECT = 0.35    # Reduction in return probability (35%)
-MONTHLY_ORDERS = 400000 / (0.22 * 18)  # Estimated monthly orders (~101K)
-
-def calculate_return_rates_by_category(df):
-    """
-    Calculates the return rate for each product category.
-
-    Parameters:
-    df (DataFrame): Input dataset containing 'product_category' and 'is_return' columns.
-
-    Returns:
-    DataFrame: Return rates per category sorted in descending order.
-    """
-    # Group by product category and calculate mean of is_return (1 = returned, 0 = kept)
-    return_rates = df.groupby('product_category')['is_return'].mean().reset_index()
-
-    # Rename column for clarity
-    return_rates.rename(columns={'is_return': 'return_rate'}, inplace=True)
-
-    # Sort by return rate descending
-    return_rates.sort_values(by='return_rate', ascending=False, inplace=True)
-
-    return return_rates
 def calculate_business_metrics(y_true, y_pred, y_prob=None):
     """
     Calculate business-relevant metrics for return prediction.
